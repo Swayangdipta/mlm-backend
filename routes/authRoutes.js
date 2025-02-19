@@ -1,61 +1,123 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const User = require("../models/user");
+const jwt = require('jsonwebtoken');
 
 const router = express.Router();
 
+// User Login Route
+router.post('/login', async (req, res) => {
+  try {
+      const { username, email, password } = req.body;
+
+      // Find user by username or email
+      const user = await User.findOne({ 
+          $or: [{ username }, { email: username }, {code: username }] 
+      });
+
+      if (!user) {
+          return res.status(400).json({ message: "Invalid username or email" });
+      }
+
+      // Compare password
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (!isMatch) {
+          return res.status(400).json({ message: "Invalid password" });
+      }
+
+      // Generate JWT token
+      const token = jwt.sign(
+          { id: user._id, role: user.role },
+          process.env.JWT_SECRET,
+          { expiresIn: "7d" } // Token expires in 7 days
+      );
+
+      res.json({
+          message: "Login successful",
+          token,
+          user: {
+              id: user._id,
+              fullname: user.fullname,
+              username: user.username,
+              code: user.code,
+              rank: user.rank,
+              email: user.email,
+              role: user.role,
+              wallet_balance: user.wallet_balance,
+              mobile: user.mobile
+          }
+      });
+
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Server error" });
+  }
+});
+
+// User Registration Route
 router.post("/register", async (req, res) => {
-  const { username, email, password, sponsorId } = req.body;
+  const { fullname, username, email, password, sponsorId, mobile, country, rank } = req.body;
 
   try {
+    // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = new User({ username, email, password: hashedPassword, sponsorId });
 
+    let sponsor = null;
+    let tempRank = rank
+    // If a sponsorId is provided, find the sponsor by their code
+    if (sponsorId) {
+      sponsor = await User.findOne({ code: sponsorId });
+
+      if (!sponsor) {
+        return res.status(400).json({ message: "Invalid sponsor code" });
+      }
+
+      if(rank){
+        if(rank > sponsor.rank){
+          return res.status(400).json({ message: "Invalid rank" }); 
+        }
+
+        tempRank = rank
+      }else{
+        tempRank = sponsor.rank - 1
+      }
+    }
+
+    // Create new user
+    const newUser = new User({
+      fullname,
+      username,
+      email,
+      password: hashedPassword,
+      sponsor: sponsor ? sponsor._id : null, // Store sponsor's _id
+      mobile,
+      country,
+      rank: tempRank
+    });
+
+    // Generate unique referral code for the new user
+    let tempCode;
+    do {
+      tempCode = Math.floor(100000 + Math.random() * 900000);
+    } while (await User.findOne({ code: tempCode })); // Ensure uniqueness
+
+    newUser.code = tempCode;
+
+    // Save new user
     await newUser.save();
 
-    if (sponsorId) {
-      await placeInBinaryTree(sponsorId, newUser._id);
+    // If sponsor exists, update their referrals list
+    if (sponsor) {
+      sponsor.referrals.push(newUser._id);
+      await sponsor.save();
     }
 
     res.status(201).json({ message: "User registered successfully", user: newUser });
 
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: "Error registering user", error });
   }
 });
-
-// Function to Place User in Binary MLM Tree
-async function placeInBinaryTree(sponsorId, newUserId) {
-  let sponsor = await User.findById(sponsorId);
-
-  if (!sponsor) return;
-
-  if (!sponsor.leftLeg) {
-    sponsor.leftLeg = newUserId;
-  } else if (!sponsor.rightLeg) {
-    sponsor.rightLeg = newUserId;
-  } else {
-    const queue = [sponsor.leftLeg, sponsor.rightLeg];
-
-    while (queue.length > 0) {
-      const nextSponsorId = queue.shift();
-      const nextSponsor = await User.findById(nextSponsorId);
-
-      if (!nextSponsor.leftLeg) {
-        nextSponsor.leftLeg = newUserId;
-        await nextSponsor.save();
-        return;
-      } else if (!nextSponsor.rightLeg) {
-        nextSponsor.rightLeg = newUserId;
-        await nextSponsor.save();
-        return;
-      } else {
-        queue.push(nextSponsor.leftLeg, nextSponsor.rightLeg);
-      }
-    }
-  }
-
-  await sponsor.save();
-}
 
 module.exports = router;

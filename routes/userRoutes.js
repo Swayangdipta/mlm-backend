@@ -5,27 +5,16 @@ const authMiddleware = require('../middlewares/authMiddleware');
 const router = express.Router();
 
 // Recursive function to fetch the entire downline tree
-const getDownlineTree = async (userId) => {
-  const directDownline = await User.find({ sponsor: userId });
-
-  return Promise.all(
-    directDownline.map(async (user) => ({
-      id: user._id,
-      username: user.username,
-      referrals: await getDownlineTree(user._id),
-    }))
-  );
-};
-
-router.get('/downline/:userId', authMiddleware(['user', 'admin']), async (req, res) => {
+router.get('/downline/:userId', async (req, res) => {
     try {
       async function getDownline(userId) {
-        const users = await User.find({ sponsor: userId }).select('fullname username _id');
         let downline = [];
+        const users = await User.find({ sponsor: userId }).populate('sponsor', 'code').select('fullname username _id code rank sponsor totalBusiness createdAt');
   
         for (let user of users) {
-          const subDownline = await getDownline(user._id);
-          downline.push({ user, subDownline });
+          downline.push(user); // Add user to the flat list
+          const subDownline = await getDownline(user._id); // Recursively get more downline
+          downline = downline.concat(subDownline); // Merge all downline into one array
         }
   
         return downline;
@@ -33,7 +22,9 @@ router.get('/downline/:userId', authMiddleware(['user', 'admin']), async (req, r
   
       const downline = await getDownline(req.params.userId);
       res.json(downline);
+  
     } catch (error) {
+      console.error(error);
       res.status(500).json({ message: 'Error fetching downline', error });
     }
   });

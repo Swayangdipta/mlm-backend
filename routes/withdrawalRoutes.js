@@ -6,10 +6,10 @@ const authMiddleware = require('../middlewares/authMiddleware');
 const router = express.Router();
 
 // Request withdrawal
-router.post('/request', authMiddleware(['user']), async (req, res) => {
+router.post('/request', async (req, res) => {
   try {
     const { amount } = req.body;
-    const user = await User.findById(req.user.userId);
+    const user = await User.findById(req.body.user);
 
     if (amount <= 0 || amount > user.wallet_balance) {
       return res.status(400).json({ message: 'Invalid withdrawal amount' });
