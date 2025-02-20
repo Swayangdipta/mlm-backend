@@ -7,7 +7,7 @@ const router = express.Router();
 // Get all users
 router.get('/users', adminMiddleware, async (req, res) => {
   try {
-    const users = await User.find().select('-password');
+    const users = await User.find().populate('sponsor').select('-password');
     res.json(users);
   } catch (error) {
     res.status(500).json({ message: 'Error fetching users', error });
@@ -50,6 +50,34 @@ router.delete('/delete-user/:id', adminMiddleware, async (req, res) => {
     res.json({ message: 'User deleted successfully' });
   } catch (error) {
     res.status(500).json({ message: 'Error deleting user', error });
+  }
+});
+
+router.get("/total-business", async (req, res) => {
+  try {
+      // Check if totalBusiness field exists in any document
+      const users = await User.find({}).select("totalBusiness");
+
+      if (!users || users.length === 0) {
+          return res.status(200).json({ totalBusiness: 0 });
+      }
+
+      // Perform aggregation safely
+      const totalBusiness = await User.aggregate([
+          {
+              $group: {
+                  _id: null,
+                  total: { $sum: { $ifNull: ["$totalBusiness", 0] } } // Handle null/undefined values
+              }
+          }
+      ]);
+
+      res.status(200).json({
+          totalBusiness: totalBusiness.length > 0 ? totalBusiness[0].total : 0
+      });
+  } catch (error) {
+      console.error("Error in /total-business:", error);
+      res.status(500).json({ message: "Error fetching total business", error });
   }
 });
 

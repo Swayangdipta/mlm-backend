@@ -18,12 +18,14 @@ router.post('/request', async (req, res) => {
     const withdrawal = await Withdrawal.create({
       user: user._id,
       amount,
-    });
+    });    
 
     await User.findByIdAndUpdate(user._id, { $inc: { wallet_balance: -amount } });
 
     res.json({ message: 'Withdrawal request submitted', withdrawal });
   } catch (error) {
+    console.log(error);
+    
     res.status(500).json({ message: 'Server error', error });
   }
 });
