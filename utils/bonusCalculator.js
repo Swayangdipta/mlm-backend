@@ -8,7 +8,7 @@ const MONTHLY_BONUS_REQUIREMENT = 5000; // Business volume required for monthly 
 // Daily Bonus Generation
 const generateDailyBonus = async () => {
   try {
-    const investments = await Investment.find({ status: 'approved' });
+    const investments = await Investment.find();
 
     for (const investment of investments) {
       const dailyBonus = investment.amount * DAILY_PERCENTAGE;
@@ -37,7 +37,7 @@ const generateMonthlyBonus = async () => {
     
     for (const user of users) {
       const totalBusiness = await Investment.aggregate([
-        { $match: { user: user._id, status: 'approved' } },
+        { $match: { user: user._id } },
         { $group: { _id: null, totalInvestment: { $sum: '$amount' } } },
       ]);
 

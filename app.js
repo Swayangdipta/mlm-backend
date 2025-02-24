@@ -11,6 +11,7 @@ const connectDB = require("./config/db.config");
 const adminRoutes = require('./routes/adminRoutes');
 const adminDashboardRoutes = require('./routes/adminDashboard');
 const investmentRoutes = require('./routes/investmentRoutes');
+const depositRoutes = require('./routes/depositRoutes');
 const withdrawalRoutes = require('./routes/withdrawalRoutes');
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
@@ -48,6 +49,7 @@ app.use("/commission", commissionRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/admin/dashboard', adminDashboardRoutes);
 app.use('/api/investment', investmentRoutes);
+app.use('/api/deposit', depositRoutes);
 app.use('/api/withdrawal', withdrawalRoutes);
 
 const PORT = process.env.PORT || 5000;

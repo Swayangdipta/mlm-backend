@@ -14,7 +14,7 @@ const checkAndGrantLifetimeRewards = async () => {
 
     for (const user of users) {
       const totalBusiness = await Investment.aggregate([
-        { $match: { user: user._id, status: 'approved' } },
+        { $match: { user: user._id } },
         { $group: { _id: null, totalInvestment: { $sum: '$amount' } } },
       ]);
 
