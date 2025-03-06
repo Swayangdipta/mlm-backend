@@ -2,6 +2,7 @@ const express = require("express");
 const bcrypt = require("bcryptjs");
 const User = require("../models/user");
 const jwt = require('jsonwebtoken');
+const { sendEmail } = require("../services/emailService");
 
 const router = express.Router();
 
@@ -62,6 +63,10 @@ router.post("/register", async (req, res) => {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    if(!sponsorId){
+      return res.status(400).json({ message: "Sponsor Id is mandatory!" }); 
+    }
+
     let sponsor = null;
     let tempRank = rank
     // If a sponsorId is provided, find the sponsor by their code
@@ -110,6 +115,14 @@ router.post("/register", async (req, res) => {
     if (sponsor) {
       sponsor.referrals.push(newUser._id);
       await sponsor.save();
+    }
+
+    const isMailSent = await sendEmail({receiver: newUser.email, fullname: newUser.fullname, code: newUser.code, password: password});
+
+    if(isMailSent){
+      console.log("Email sent successfully!");
+    }else{
+      console.log("Error sending email!");
     }
 
     res.status(201).json({ message: "User registered successfully", user: newUser });
