@@ -21,6 +21,10 @@ const UserSchema = new mongoose.Schema({
   accountNumber: { type: String, default: null },
   accountName: { type: String, default: null },
   ifscCode: { type: String, default: null },
+  token_wallet: { type: Number, default: 0 }, // Token wallet balance
+  staking_wallet: { type: Number, default: 0 }, // Staking wallet balance
+  credits: [],
+  withdrawals: [],
 });
 
 module.exports = mongoose.model('User', UserSchema);

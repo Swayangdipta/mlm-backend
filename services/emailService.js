@@ -12,16 +12,14 @@ const transporter = nodemailer.createTransport({
 });
 
 exports.sendEmail = async (options) => {
-      // send mail with defined transport object
-
-    const template = registrationTemplate(options)
-
+    const template = await registrationTemplate(options)
+    
     try {
         const info = await transporter.sendMail({
-            from: '"Principal Grow" <maddison53@ethereal.email>', // sender address
-            to: options.receiver, // list of receivers
-            subject: "Registration Successful!", // Subject line
-            html: template, // html body
+            from: '"Principal Grow" <swayangdiptacc@gmail.com>', // sender address
+            to: options.receiver,
+            subject: "Registration Successful!",
+            html: template,
           });
         
           console.log("Message sent: %s", info.messageId);
@@ -30,5 +28,4 @@ exports.sendEmail = async (options) => {
         console.error(error);
         return false
     }
-
 }

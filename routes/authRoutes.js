@@ -45,7 +45,9 @@ router.post('/login', async (req, res) => {
               email: user.email,
               role: user.role,
               wallet_balance: user.wallet_balance,
-              mobile: user.mobile
+              mobile: user.mobile,
+              staking_wallet: user.staking_wallet,
+              token_wallet: user.token_wallet,
           }
       });
 

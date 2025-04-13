@@ -31,7 +31,7 @@ router.post('/request', async (req, res) => {
 });
 
 // Admin approves a withdrawal
-router.post('/approve/:withdrawalId', authMiddleware(['admin']), async (req, res) => {
+router.post('/approve/:withdrawalId', async (req, res) => {
   try {
     const withdrawal = await Withdrawal.findById(req.params.withdrawalId);
     if (!withdrawal) return res.status(404).json({ message: 'Withdrawal not found' });
@@ -61,10 +61,10 @@ router.get('/my-withdrawals', authMiddleware(['user']), async (req, res) => {
 });
 
 // Fetch all withdrawals (Admin)
-router.get('/all', authMiddleware(['admin']), async (req, res) => {
+router.get('/all', async (req, res) => {
   try {
     const withdrawals = await Withdrawal.find().populate('user', 'username email');
-    res.json(withdrawals);
+    res.status(200).json(withdrawals);
   } catch (error) {
     res.status(500).json({ message: 'Server error', error });
   }

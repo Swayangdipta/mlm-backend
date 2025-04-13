@@ -1,6 +1,7 @@
 const express = require('express');
 const User = require('../models/user');
 const adminMiddleware = require('../middlewares/adminMiddleware');
+const Investment = require('../models/investment');
 
 const router = express.Router();
 
@@ -78,6 +79,21 @@ router.get("/total-business", async (req, res) => {
   } catch (error) {
       console.error("Error in /total-business:", error);
       res.status(500).json({ message: "Error fetching total business", error });
+  }
+});
+
+router.get("/investments", async (req, res) => {
+  try {
+      const investments = await Investment.find().populate("user", "fullname username code ").sort({ createdAt: -1 });
+
+      if (!investments || investments.length === 0) {
+          return res.status(200).json({ message: "No investments found" });
+      }
+
+      res.status(200).json(investments);
+  } catch (error) {
+      console.error("Error in /investments:", error);
+      res.status(500).json({ message: "Error fetching total investments", error });
   }
 });
 
