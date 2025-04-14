@@ -73,7 +73,8 @@ router.post("/register", async (req, res) => {
     let tempRank = rank
     // If a sponsorId is provided, find the sponsor by their code
     if (sponsorId) {
-      sponsor = await User.findOne({ code: sponsorId });
+      let tempSponsorId = sponsorId.trim()
+      sponsor = await User.findOne({ code: tempSponsorId });      
 
       if (!sponsor) {
         return res.status(400).json({ message: "Invalid sponsor code" });
@@ -116,6 +117,7 @@ router.post("/register", async (req, res) => {
     // If sponsor exists, update their referrals list
     if (sponsor) {
       sponsor.referrals.push(newUser._id);
+      sponsor.referral_wallet = sponsor.referral_wallet + sponsor.staking_wallet * 0.05
       await sponsor.save();
     }
 

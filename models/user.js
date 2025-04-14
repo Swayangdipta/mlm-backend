@@ -25,6 +25,10 @@ const UserSchema = new mongoose.Schema({
   staking_wallet: { type: Number, default: 0 }, // Staking wallet balance
   credits: [],
   withdrawals: [],
+  referral_wallet: {type: Number, default: 0},
+  daily_rewards: {type: Number, default: 0},
+  monthly_rewards: {type: Number, default: 0},
+  lifetime_rewards: {type: Number, default: 0}
 });
 
 module.exports = mongoose.model('User', UserSchema);

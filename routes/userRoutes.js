@@ -9,8 +9,11 @@ router.get('/downline/:userId', async (req, res) => {
     try {
       async function getDownline(userId) {
         let downline = [];
+        
         const users = await User.find({ sponsor: userId }).populate('sponsor', 'code').select('fullname username _id code rank sponsor totalBusiness createdAt');
-  
+        
+        console.log(users);
+        
         for (let user of users) {
           downline.push(user); // Add user to the flat list
           const subDownline = await getDownline(user._id); // Recursively get more downline
@@ -19,7 +22,9 @@ router.get('/downline/:userId', async (req, res) => {
   
         return downline;
       }
-  
+      
+      console.log(req.params.userId);
+      
       const downline = await getDownline(req.params.userId);
       res.json(downline);
   
@@ -27,6 +32,18 @@ router.get('/downline/:userId', async (req, res) => {
       console.error(error);
       res.status(500).json({ message: 'Error fetching downline', error });
     }
-  });
+});
+
+router.get('/:userId', async (req,res) => {
+  try {
+    const user = await User.findById(req.params.userId)
+
+    if(!user) res.status(200).json({message: 'No User Found.'})
+
+      return res.status(200).json(user)
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching user data', error });
+  }
+})
   
 module.exports = router;
