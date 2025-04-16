@@ -36,11 +36,25 @@ router.get('/downline/:userId', async (req, res) => {
 
 router.get('/:userId', async (req,res) => {
   try {
-    const user = await User.findById(req.params.userId)
+    const user = await User.findById(req.params.userId).populate('referrals')
 
-    if(!user) res.status(200).json({message: 'No User Found.'})
+    if(!user) res.status(404).json({message: 'No User Found.'})
 
       return res.status(200).json(user)
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching user data', error });
+  }
+})
+
+router.get('/user/:userId', async (req,res) => {
+  try {
+    const user = await User.findOne({code: req.params.userId})
+
+      if(!user){
+        return res.status(404).json({message: 'No User Found.'})
+      }
+      
+      return res.status(200).json({fullname: user.fullname || user.username})
   } catch (error) {
     res.status(500).json({ message: 'Error fetching user data', error });
   }
