@@ -1,7 +1,8 @@
 const express = require('express');
 const User = require('../models/user');
 const authMiddleware = require('../middlewares/authMiddleware');
-const _ = require('lodash')
+const _ = require('lodash');
+const withdrawal = require('../models/withdrawal');
 const router = express.Router();
 
 // Recursive function to fetch the entire downline tree
@@ -79,5 +80,66 @@ router.put('/user/:userId', async (req,res) => {
     res.status(500).json({ message: 'Error updating user data', error });
   }
 })
+
+router.put('/transfer/:userId/:memberId', async (req, res) => {
+  try {
+    const { userId, memberId } = req.params;
+    const { amount } = req.body;
+
+    if (!amount || isNaN(amount) || amount <= 0) {
+      return res.status(400).json({ message: 'Invalid amount.' });
+    }
+
+    const user = await User.findById(userId);
+    const transferToUser = await User.findById(memberId);
+
+    if (!user) {
+      return res.status(404).json({ message: 'No User Found.' });
+    }
+
+    if (!transferToUser) {
+      return res.status(404).json({ message: 'Invalid User.' });
+    }
+
+    if (user.redeem_wallet < amount) {
+      return res.status(400).json({ message: 'Insufficient balance in redeem wallet.' });
+    }
+
+    // Prepare update data for sender
+    const updateSender = {
+      $inc: { redeem_wallet: -amount },
+      $push: {
+        withdrawal: {
+          purpose: 'Transfer',
+          date: new Date().toLocaleDateString(),
+          time: new Date().toLocaleTimeString(),
+          amount: amount,
+        },
+      },
+    };
+
+    // Prepare update data for receiver
+    const updateReceiver = {
+      $inc: { token_wallet: amount },
+      $push: {
+        credits: {
+          purpose: 'Transfer',
+          date: new Date().toLocaleDateString(),
+          time: new Date().toLocaleTimeString(),
+          amount: amount,
+        },
+      },
+    };
+
+    await User.findByIdAndUpdate(userId, updateSender);
+    await User.findByIdAndUpdate(memberId, updateReceiver);
+
+    return res.status(200).json({ message: 'Transfer successful.' });
+  } catch (error) {
+    console.error('Transfer error:', error);
+    return res.status(500).json({ message: 'Error processing transfer.', error });
+  }
+});
+
   
 module.exports = router;
