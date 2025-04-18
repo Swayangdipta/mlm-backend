@@ -51,7 +51,9 @@ router.post('/login', async (req, res) => {
               bankName: user.bankName,
               ifscCode: user.ifscCode,
               accountName: user.accountName,
-              accountNumber: user.accountNumber
+              accountNumber: user.accountNumber,
+              redeem_wallet: user.redeem_wallet ? user.redeem_wallet : 0,
+              referral_wallet: user.referral_wallet
           }
       });
 
