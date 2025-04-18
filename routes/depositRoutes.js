@@ -63,7 +63,16 @@ router.post('/approve/:depositId', authMiddleware(['admin']), async (req, res) =
     await deposit.save();
 
     await User.findByIdAndUpdate(deposit.user, {
+      $set: {current_wallet: deposit.amount},
       $inc: { wallet_balance: deposit.amount, staking_wallet: parseInt(deposit.amount) * 400, token_wallet: parseInt(deposit.amount) * 400 }, // Deposit added to wallet balance
+      $push: {
+        credits: {
+          purpose: 'Deposit Approved',
+          date: new Date().toLocaleDateString(),
+          time: new Date().toLocaleTimeString(),
+          amount: deposit.amount * 400,
+        }
+      }
     });
 
     res.json({ message: 'Deposit approved', deposit });

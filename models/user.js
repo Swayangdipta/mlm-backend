@@ -2,7 +2,6 @@ const mongoose = require('mongoose');
 
 const UserSchema = new mongoose.Schema({
   fullname: { type: String, required: true },
-  username: { type: String, unique: true, required: true },
   sponsor: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
   wallet_balance: { type: Number, default: 0 },
   role: { type: String, enum: ['user', 'admin'], default: 'user' },
@@ -22,6 +21,8 @@ const UserSchema = new mongoose.Schema({
   accountName: { type: String, default: null },
   ifscCode: { type: String, default: null },
   token_wallet: { type: Number, default: 0 }, // Token wallet balance
+  current_wallet: { type: Number, default: 0 }, // Token wallet balance
+  redeem_wallet: { type: Number, default: 0 }, // Token wallet balance
   staking_wallet: { type: Number, default: 0 }, // Staking wallet balance
   credits: [],
   withdrawals: [],

@@ -48,6 +48,10 @@ router.post('/login', async (req, res) => {
               mobile: user.mobile,
               staking_wallet: user.staking_wallet,
               token_wallet: user.token_wallet,
+              bankName: user.bankName,
+              ifscCode: user.ifscCode,
+              accountName: user.accountName,
+              accountNumber: user.accountNumber
           }
       });
 

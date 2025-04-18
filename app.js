@@ -7,7 +7,7 @@ const distributeMonthlyRewards = require('./services/monthlyRewards');
 const distributeLifetimeRewards = require('./services/lifetimeRewards');
 require('dotenv').config();
 const connectDB = require("./config/db.config");
-
+const axios = require('axios');
 const adminRoutes = require('./routes/adminRoutes');
 const adminDashboardRoutes = require('./routes/adminDashboard');
 const investmentRoutes = require('./routes/investmentRoutes');
@@ -51,6 +51,21 @@ app.use('/api/admin/dashboard', adminDashboardRoutes);
 app.use('/api/investment', investmentRoutes);
 app.use('/api/deposit', depositRoutes);
 app.use('/api/withdrawal', withdrawalRoutes);
+
+app.get('/ping', (req, res) => {
+  res.status(200).send('Pong');
+});
+
+// Self-ping to keep the app awake every 10 minutes (300,000 ms)
+setInterval(() => {
+  axios.get(process.env.BACKEND_URL+'/ping') // Use your Render URL here instead of localhost
+    .then(response => {
+      console.log('Ping successful:', response.data);
+    })
+    .catch(error => {
+      console.error('Error with self-ping:', error);
+    });
+}, 600000); // 10 minutes interval (300,000 ms)
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

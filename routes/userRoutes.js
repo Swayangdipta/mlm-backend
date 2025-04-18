@@ -1,7 +1,7 @@
 const express = require('express');
 const User = require('../models/user');
 const authMiddleware = require('../middlewares/authMiddleware');
-
+const _ = require('lodash')
 const router = express.Router();
 
 // Recursive function to fetch the entire downline tree
@@ -57,6 +57,26 @@ router.get('/user/:userId', async (req,res) => {
       return res.status(200).json({fullname: user.fullname || user.username})
   } catch (error) {
     res.status(500).json({ message: 'Error fetching user data', error });
+  }
+})
+
+router.put('/user/:userId', async (req,res) => {
+  try {
+    console.log(req.params.userId);
+       
+    let user = await User.findById(req.params.userId)
+
+    if(!user){
+      return res.status(404).json({message: 'No User Found.'})
+    }
+
+    user = _.extend(user, req.body)
+
+    await user.save()
+
+    return res.status(200).json({message: 'Data updated.'})
+  } catch (error) {
+    res.status(500).json({ message: 'Error updating user data', error });
   }
 })
   
