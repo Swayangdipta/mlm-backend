@@ -144,4 +144,68 @@ router.post("/register", async (req, res) => {
   }
 });
 
+router.post('/forgot-password', async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Generate a unique token for password reset
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    user.forgot_token = token;
+    user.forgot_token_expiry = Date.now() + 3600000; // Token expires in 1 hour
+    await user.save();
+
+    const resetLink = `${process.env.FRONTEND_URL}/reset-password/${token}`;
+
+    const isMailSent = await sendEmail({receiver: user.email, fullname: user.fullname, link: resetLink});
+    console.log(resetLink);
+    
+    if(isMailSent){
+      console.log("Email sent successfully!");
+      res.status(201).json({ message: "A link to reset your password have been sent to tour registered email address." });
+    }
+    else{
+      console.log("Error sending email!");
+      res.status(500).json({ message: "Faild to create reset link, try again later!" });
+    }
+  }catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+}
+);
+
+router.put('/reset-password/:token', async (req, res) => {
+  const { password } = req.body;
+  const token = req.params.token;
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.id);
+
+    if (!user || user.forgot_token !== token || Date.now() > user.forgot_token_expiry) {
+      return res.status(400).json({ message: "Invalid or expired token" });
+    }
+
+    // Hash new password
+    const hashedPassword = await bcrypt.hash(password, 10);
+    user.password = hashedPassword;
+    user.forgot_token = null; // Clear the token after use
+    user.forgot_token_expiry = null; // Clear the expiry date
+
+    await user.save();
+
+    res.status(201).json({ message: "Password reset successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+
+
 module.exports = router;

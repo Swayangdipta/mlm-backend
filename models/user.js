@@ -32,6 +32,8 @@ const UserSchema = new mongoose.Schema({
   monthly_rewards: {type: Number, default: 0},
   lifetime_rewards: {type: Number, default: 0},
   wallet_address: {type: String, default: null},
+  forgot_token: String,
+  forgot_token_expiry: Date,
 });
 
 module.exports = mongoose.model('User', UserSchema);

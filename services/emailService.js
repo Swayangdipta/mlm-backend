@@ -1,5 +1,5 @@
 const nodemailer = require("nodemailer");
-const { registrationTemplate } = require("./emailTemplate");
+const { registrationTemplate, forgotPasswordTemplate } = require("./emailTemplate");
 
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
@@ -11,14 +11,31 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-exports.sendEmail = async (options) => {
-    const template = await registrationTemplate(options)
+exports.sendEmail = async (options) => {    
+    const type = options.type || 'registration'
+    const template = type === "registration" ?  await registrationTemplate(options) : await forgotPasswordTemplate(options)
+
+
+    let subject = 'Registration Successful!'
+    if (type === 'forgot') {
+        subject = 'Password Reset Request'
+    } else if (type === 'verification') {
+        subject = 'Email Verification'
+    } else if (type === 'welcome') {
+        subject = 'Welcome to Our Platform!'
+    } else if (type === 'transaction') {
+        subject = 'Transaction Alert'
+    } else if (type === 'withdrawal') {
+        subject = 'Withdrawal Request'
+    } else if (type === 'deposit') {
+        subject = 'Deposit Confirmation'
+    }
     
     try {
         const info = await transporter.sendMail({
-            from: '"Principal Grow" <swayangdiptacc@gmail.com>', // sender address
+            from: '"AI Digital Asset Management" <aidigitalassetmanagement@gmail.com>', // sender address
             to: options.receiver,
-            subject: "Registration Successful!",
+            subject: subject,
             html: template,
           });
         
