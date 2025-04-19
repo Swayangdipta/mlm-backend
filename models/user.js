@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 
 const UserSchema = new mongoose.Schema({
   fullname: { type: String, required: true },
+  username: { type: String, unique: false, required: false },
   sponsor: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
   wallet_balance: { type: Number, default: 0 },
   role: { type: String, enum: ['user', 'admin'], default: 'user' },
