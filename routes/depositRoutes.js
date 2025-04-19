@@ -28,7 +28,8 @@ router.post('/create', upload.single('receipt'), async (req, res) => {
               const deposit = await Deposit.create({
                   user: req.body.user,
                   amount,
-                  receiptUrl: result.secure_url // Save Cloudinary image URL
+                  receiptUrl: result.secure_url ,// Save Cloudinary image URL
+                  
               });
 
               // Create Transaction
@@ -51,7 +52,7 @@ router.post('/create', upload.single('receipt'), async (req, res) => {
   }
 });
 
-router.post('/approve/:depositId', authMiddleware(['admin']), async (req, res) => {
+router.post('/approve/:depositId', async (req, res) => {
   try {
     const deposit = await Deposit.findById(req.params.depositId);
     if (!deposit) return res.status(404).json({ message: 'Deposit not found' });
@@ -63,7 +64,7 @@ router.post('/approve/:depositId', authMiddleware(['admin']), async (req, res) =
     await deposit.save();
 
     await User.findByIdAndUpdate(deposit.user, {
-      $set: {current_wallet: deposit.amount},
+      $set: {current_wallet: parseInt(deposit.amount) * 400},
       $inc: { wallet_balance: deposit.amount, staking_wallet: parseInt(deposit.amount) * 400, token_wallet: parseInt(deposit.amount) * 400 }, // Deposit added to wallet balance
       $push: {
         credits: {
@@ -81,6 +82,24 @@ router.post('/approve/:depositId', authMiddleware(['admin']), async (req, res) =
   }
 });
 
+router.post('/reject/:depositId', async (req, res) => {
+  try {
+    const deposit = await Deposit.findById(req.params.depositId);
+    if (!deposit) return res.status(404).json({ message: 'Deposit not found' });
+
+    if (deposit.status !== 'pending') return res.status(400).json({ message: 'Deposit already processed' });
+
+    deposit.status = 'rejected';
+    deposit.rejectedAt = new Date();
+    await deposit.save();
+
+    res.json({ message: 'Deposit rejected', deposit });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error });
+  }
+}
+);
+
 router.get('/receipt/:id', async (req, res) => {
   try {
       const deposit = await Deposit.findById(req.params.id);
@@ -92,6 +111,16 @@ router.get('/receipt/:id', async (req, res) => {
       res.json({url: deposit.receiptUrl});
   } catch (error) {
       res.status(500).json({ message: 'Server error', error });
+  }
+});
+
+// Fetch all deposits (Admin)
+router.get('/all', async (req, res) => {
+  try {
+    const deposits = await Deposit.find().populate('user', 'code fullname email');
+    res.status(200).json(deposits);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error });
   }
 });
 

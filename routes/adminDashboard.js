@@ -2,6 +2,7 @@ const express = require('express');
 const User = require('../models/user');
 const adminMiddleware = require('../middlewares/adminMiddleware');
 const Investment = require('../models/investment');
+const Deposit = require('../models/deposit');
 
 const router = express.Router();
 
@@ -56,26 +57,31 @@ router.delete('/delete-user/:id', adminMiddleware, async (req, res) => {
 
 router.get("/total-business", async (req, res) => {
   try {
-      // Check if totalBusiness field exists in any document
-      const users = await User.find({}).select("totalBusiness");
+      const deposits = await Deposit.find({}).select("amount status");
 
-      if (!users || users.length === 0) {
+      if (!deposits || deposits.length === 0) {
           return res.status(200).json({ totalBusiness: 0 });
       }
 
-      // Perform aggregation safely
-      const totalBusiness = await User.aggregate([
-          {
-              $group: {
-                  _id: null,
-                  total: { $sum: { $ifNull: ["$totalBusiness", 0] } } // Handle null/undefined values
-              }
-          }
+      // Only sum the deposits that are approved
+      const approvedDeposits = deposits.filter(deposit => deposit.status === "approved");
+      if (approvedDeposits.length === 0) {
+          return res.status(200).json({ totalBusiness: 0 });
+      }
+      const totalApprovedDeposits = approvedDeposits.reduce((acc, deposit) => acc + deposit.amount, 0);
+      const totalBusiness = await Deposit.aggregate([
+          { $match: { status: "approved" } },
+          { $group: { _id: null, total: { $sum: "$amount" } } }
       ]);
 
-      res.status(200).json({
-          totalBusiness: totalBusiness.length > 0 ? totalBusiness[0].total : 0
-      });
+    
+      if (!totalBusiness || totalBusiness.length === 0) {
+          return res.status(200).json({ totalBusiness: 0 });
+      }
+
+      // Return the total business amount
+
+      res.status(200).json({ totalBusiness: totalBusiness[0].total });
   } catch (error) {
       console.error("Error in /total-business:", error);
       res.status(500).json({ message: "Error fetching total business", error });

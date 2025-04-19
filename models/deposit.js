@@ -9,7 +9,7 @@ const DepositSchema = new mongoose.Schema({
     default: 'https://res.cloudinary.com/dxkufsejm/image/upload/v1622680182/investment_receipts/default.png',
   },
   createdAt: { type: Date, default: Date.now },
-  status: { type: String, enum: ['pending', 'completed','rejected'], default: 'pending' },
+  status: { type: String, enum: ['pending', 'approved','rejected'], default: 'pending' },
 });
 
 module.exports = mongoose.model('Deposit', DepositSchema);

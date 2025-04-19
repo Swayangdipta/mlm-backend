@@ -9,6 +9,10 @@ async function distributeDailyProfit() {
       const profitCap = hasDownlines ? user.staking_wallet * 2 : user.staking_wallet;
       
       if (user.current_wallet <= profitCap) {
+        if(user.staking_wallet <= 0) {
+          console.log(`❌ ${user.name || user._id} has no staking wallet balance.`);
+          continue;
+        }
         const dailyProfit = user.staking_wallet * 0.04;
 
         const updateData = {

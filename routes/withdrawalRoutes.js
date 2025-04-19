@@ -51,7 +51,7 @@ router.post('/approve/:withdrawalId', async (req, res) => {
 });
 
 // Fetch user withdrawals
-router.get('/my-withdrawals', authMiddleware(['user']), async (req, res) => {
+router.get('/my-withdrawals', async (req, res) => {
   try {
     const withdrawals = await Withdrawal.find({ user: req.user.userId }).sort({ requestedAt: -1 });
     res.json(withdrawals);
