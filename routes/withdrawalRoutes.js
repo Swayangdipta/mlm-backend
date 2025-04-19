@@ -63,7 +63,7 @@ router.get('/my-withdrawals', async (req, res) => {
 // Fetch all withdrawals (Admin)
 router.get('/all', async (req, res) => {
   try {
-    const withdrawals = await Withdrawal.find().populate('user', 'username email');
+    const withdrawals = await Withdrawal.find().populate('user', 'code fullname email');
     res.status(200).json(withdrawals);
   } catch (error) {
     res.status(500).json({ message: 'Server error', error });
