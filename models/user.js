@@ -29,7 +29,8 @@ const UserSchema = new mongoose.Schema({
   referral_wallet: {type: Number, default: 0},
   daily_rewards: {type: Number, default: 0},
   monthly_rewards: {type: Number, default: 0},
-  lifetime_rewards: {type: Number, default: 0}
+  lifetime_rewards: {type: Number, default: 0},
+  wallet_address: {type: String, default: null},
 });
 
 module.exports = mongoose.model('User', UserSchema);

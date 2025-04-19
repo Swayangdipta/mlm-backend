@@ -53,7 +53,8 @@ router.post('/login', async (req, res) => {
               accountName: user.accountName,
               accountNumber: user.accountNumber,
               redeem_wallet: user.redeem_wallet ? user.redeem_wallet : 0,
-              referral_wallet: user.referral_wallet
+              referral_wallet: user.referral_wallet,
+              wallet_address: user.wallet_address || null,
           }
       });
 

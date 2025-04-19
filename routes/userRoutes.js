@@ -62,9 +62,7 @@ router.get('/user/:userId', async (req,res) => {
 })
 
 router.put('/user/:userId', async (req,res) => {
-  try {
-    console.log(req.params.userId);
-       
+  try {       
     let user = await User.findById(req.params.userId)
 
     if(!user){
