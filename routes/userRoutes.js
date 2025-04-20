@@ -61,6 +61,34 @@ router.get('/user/:userId', async (req,res) => {
   }
 })
 
+router.get('/deposits/:userId', async (req,res) => {
+  try {
+    const user = await User.findById(req.params.userId)
+
+      if(!user){
+        return res.status(404).json({message: 'No User Found.'})
+      }
+      
+      return res.status(200).json({deposits: user.credits})
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching user data', error });
+  }
+})
+
+router.get('/withdrawals/:userId', async (req,res) => {
+  try {
+    const user = await User.findById(req.params.userId)
+
+      if(!user){
+        return res.status(404).json({message: 'No User Found.'})
+      }
+      
+      return res.status(200).json({withdrawals: user.withdrawals})
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching user data', error });
+  }
+})
+
 router.put('/user/:userId', async (req,res) => {
   try {       
     let user = await User.findById(req.params.userId)

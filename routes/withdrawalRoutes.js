@@ -20,7 +20,14 @@ router.post('/request', async (req, res) => {
       amount,
     });    
 
-    await User.findByIdAndUpdate(user._id, { $inc: { wallet_balance: -amount } });
+    await User.findByIdAndUpdate(user._id, { $inc: { redeem_wallet: -amount },       $push: {
+      withdrawals: {
+        purpose: 'General',
+        date: new Date().toLocaleDateString(),
+        time: new Date().toLocaleTimeString(),
+        amount: amount,
+      }
+    } });
 
     res.json({ message: 'Withdrawal request submitted', withdrawal });
   } catch (error) {
