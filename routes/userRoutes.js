@@ -74,7 +74,7 @@ router.get('/deposits/:userId', async (req,res) => {
       console.log("Deposits", user.credits);
       
       
-      return res.status(200).json({deposits: user.credits})
+      return res.status(200).json(user.credits.sort((a,b) => new Date(b.date) - new Date(a.date)))
   } catch (error) {
     res.status(500).json({ message: 'Error fetching user data', error });
   }
@@ -88,7 +88,7 @@ router.get('/withdrawals/:userId', async (req,res) => {
         return res.status(404).json({message: 'No User Found.'})
       }
       
-      return res.status(200).json({withdrawals: user.withdrawals})
+      return res.status(200).json(user.withdrawals.sort((a, b) => new Date(b.date) - new Date(a.date))) 
   } catch (error) {
     res.status(500).json({ message: 'Error fetching user data', error });
   }
