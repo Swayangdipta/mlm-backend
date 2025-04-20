@@ -473,7 +473,7 @@ exports.forgotPasswordTemplate = (data) => {
     <td class="t27" style="width:280px;">
     <!--<![endif]-->
     <table class="t26" role="presentation" cellpadding="0" cellspacing="0" width="100%" style="width:100%;"><tr><td class="t25"><p class="t24" style="margin:0;Margin:0;font-family:Inter Tight,BlinkMacSystemFont,Segoe UI,Helvetica Neue,Arial,sans-serif;line-height:21px;font-weight:400;font-style:normal;font-size:14px;text-decoration:none;text-transform:none;direction:ltr;color:#555555;text-align:center;mso-line-height-rule:exactly;mso-text-raise:2px;">
-        Dear ${data.fullname}. <br> To Reset your password please click the below link -. <br> ${data.link}
+        Dear ${data.fullname}. <br> To Reset your password please click the below link -. <br> <a href='${data.link}' >${data.link}</a> <br> <br> If you did not request a password reset, please ignore this email.
     </p></td></tr></table>
     </td></tr></table>
     </td></tr><tr><td><div class="t29" style="mso-line-height-rule:exactly;mso-line-height-alt:30px;line-height:30px;font-size:1px;display:block;">&nbsp;&nbsp;</div></td></tr><tr><td><div class="t32" style="mso-line-height-rule:exactly;mso-line-height-alt:12px;line-height:12px;font-size:1px;display:block;">&nbsp;&nbsp;</div></td></tr><tr><td align="center">
