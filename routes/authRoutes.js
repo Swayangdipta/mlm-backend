@@ -161,7 +161,7 @@ router.post('/forgot-password', async (req, res) => {
 
     const resetLink = `${process.env.FRONTEND_URL}/reset-password/${token}`;
 
-    const isMailSent = await sendEmail({receiver: user.email, fullname: user.fullname, link: resetLink});
+    const isMailSent = await sendEmail({receiver: user.email, fullname: user.fullname, link: resetLink, type: 'forgot'});
     console.log(resetLink);
     
     if(isMailSent){
