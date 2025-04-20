@@ -64,10 +64,15 @@ router.get('/user/:userId', async (req,res) => {
 router.get('/deposits/:userId', async (req,res) => {
   try {
     const user = await User.findById(req.params.userId)
-
+      console.log("UserID", req.params.userId)
+      console.log("User", user);
+      
       if(!user){
         return res.status(404).json({message: 'No User Found.'})
       }
+
+      console.log("Deposits", user.credits);
+      
       
       return res.status(200).json({deposits: user.credits})
   } catch (error) {
