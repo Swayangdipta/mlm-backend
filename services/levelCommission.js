@@ -65,7 +65,7 @@ async function distributeLevelCommission(referrerId, baseAmount) {
           }
         });
 
-        console.log(`Level ${level + 1}: ${upline.name || 'Unnamed'} (ID: ${upline._id}) earned ₹${commission.toFixed(2)} (from downline’s ₹${prevCommission.toFixed(2)})`);
+        console.log(`Level ${level + 1}: ${upline.fullname || 'Unnamed'} (ID: ${upline._id}) earned ₹${commission.toFixed(2)} (from downline’s ₹${prevCommission.toFixed(2)})`);
         prevCommission = commission;
       }
 

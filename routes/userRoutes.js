@@ -61,6 +61,29 @@ router.get('/user/:userId', async (req,res) => {
   }
 })
 
+router.get('/referral-benefits/:userId', async (req,res) => {
+  try {
+    const user = await User.findOne({code: req.params.userId})
+
+      if(!user){
+        return res.status(404).json({message: 'No User Found.'})
+      }
+
+      let benefits = []
+
+      user.credits.forEach(credit => {
+        if(credit.purpose === 'Referral Bonus'){
+          benefits.push(credit)
+        }
+      }
+      )
+      
+      return res.status(200).json(benefits)
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching user data', error });
+  }
+})
+
 router.get('/deposits/:userId', async (req,res) => {
   try {
     const user = await User.findById(req.params.userId)

@@ -32,6 +32,8 @@ router.post('/create', upload.single('receipt'), async (req, res) => {
                   
               });
 
+              await User.findByIdAndUpdate(req.body.user, { pending_deposits: deposit})
+
               // Create Transaction
               const transaction = await Transaction.create({
                   user: req.body.user,
@@ -63,8 +65,33 @@ router.post('/approve/:depositId', async (req, res) => {
     deposit.approvedAt = new Date();
     await deposit.save();
 
+    const currentUser = await User.findById(deposit.user);
+    if (!currentUser) return res.status(404).json({ message: 'User not found' });
+
+    if (!currentUser.isReferralBonusCreditedToSponsor) {
+      const sponsor = await User.findById(currentUser.sponsor);
+      if (sponsor) {
+        await User.findByIdAndUpdate(sponsor._id, { 
+          $inc: { referral_wallet: sponsor.staking_wallet * 0.05, redeem_wallet: sponsor.staking_wallet * 0.05  } ,
+          $push: {
+            credits: {
+              purpose: 'Referral Bonus',
+              date: new Date().toLocaleDateString(),
+              time: new Date().toLocaleTimeString(),
+              amount: sponsor.staking_wallet * 0.05,
+              member: {
+                id: currentUser._id,
+                name: currentUser.fullname,
+                code: currentUser.code}
+            },
+          },
+        });
+        await User.findByIdAndUpdate(currentUser._id, { isReferralBonusCreditedToSponsor: true });
+      }
+    }
+
     await User.findByIdAndUpdate(deposit.user, {
-      $set: {current_wallet: parseInt(deposit.amount) * 400},
+      $set: {current_wallet: parseInt(deposit.amount) * 400, pending_deposits: []}, // Set the current wallet to the deposit amount
       $inc: { wallet_balance: deposit.amount, staking_wallet: parseInt(deposit.amount) * 400, token_wallet: parseInt(deposit.amount) * 400 }, // Deposit added to wallet balance
       $push: {
         credits: {
@@ -93,6 +120,8 @@ router.post('/reject/:depositId', async (req, res) => {
     deposit.rejectedAt = new Date();
     await deposit.save();
 
+    await User.findByIdAndUpdate(deposit.user, { pending_deposits: deposit });
+
     res.json({ message: 'Deposit rejected', deposit });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error });
@@ -119,6 +148,18 @@ router.get('/all', async (req, res) => {
   try {
     const deposits = await Deposit.find().populate('user', 'code fullname email');
     res.status(200).json(deposits);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error });
+  }
+});
+
+router.get('/my-pending-deposits/:userId', async (req, res) => {
+  try {
+    const user = await User.findById(req.params.userId);
+    
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    
+    res.status(200).json(user.pending_deposits);
   } catch (error) {
     res.status(500).json({ message: 'Server error', error });
   }
