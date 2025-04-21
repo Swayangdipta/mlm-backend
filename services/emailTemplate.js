@@ -220,7 +220,7 @@ text-decoration: none
 <!--[if !mso]>-->
 <td class="t35" style="width:280px;">
 <!--<![endif]-->
-<table class="t34" role="presentation" cellpadding="0" cellspacing="0" width="100%" style="width:100%;"><tr><td class="t33"><p class="t31" style="margin:0;Margin:0;font-family:Inter Tight,BlinkMacSystemFont,Segoe UI,Helvetica Neue,Arial,sans-serif;line-height:21px;font-weight:400;font-style:normal;font-size:14px;text-decoration:none;text-transform:none;direction:ltr;color:#555555;text-align:center;mso-line-height-rule:exactly;mso-text-raise:2px;">Welcome to our <span class="t30" style="margin:0;Margin:0;color:#F73E3E;mso-line-height-rule:exactly;">Family!</span></p></td></tr></table>
+<table class="t34" role="presentation" cellpadding="0" cellspacing="0" width="100%" style="width:100%;"><tr><td class="t33"><p class="t31" style="margin:0;Margin:0;font-family:Inter Tight,BlinkMacSystemFont,Segoe UI,Helvetica Neue,Arial,sans-serif;line-height:21px;font-weight:400;font-style:normal;font-size:14px;text-decoration:none;text-transform:none;direction:ltr;color:#555555;text-align:center;mso-line-height-rule:exactly;mso-text-raise:2px;">Welcome to our <span class="t30" style="margin:0;Margin:0;mso-line-height-rule:exactly;">Family!</span></p></td></tr></table>
 </td></tr></table>
 </td></tr></table></td></tr></table>
 </td></tr></table>
@@ -484,7 +484,7 @@ exports.forgotPasswordTemplate = (data) => {
     <!--[if !mso]>-->
     <td class="t35" style="width:280px;">
     <!--<![endif]-->
-    <table class="t34" role="presentation" cellpadding="0" cellspacing="0" width="100%" style="width:100%;"><tr><td class="t33"><p class="t31" style="margin:0;Margin:0;font-family:Inter Tight,BlinkMacSystemFont,Segoe UI,Helvetica Neue,Arial,sans-serif;line-height:21px;font-weight:400;font-style:normal;font-size:14px;text-decoration:none;text-transform:none;direction:ltr;color:#555555;text-align:center;mso-line-height-rule:exactly;mso-text-raise:2px;">Welcome to our <span class="t30" style="margin:0;Margin:0;color:#F73E3E;mso-line-height-rule:exactly;">Family!</span></p></td></tr></table>
+    <table class="t34" role="presentation" cellpadding="0" cellspacing="0" width="100%" style="width:100%;"><tr><td class="t33"><p class="t31" style="margin:0;Margin:0;font-family:Inter Tight,BlinkMacSystemFont,Segoe UI,Helvetica Neue,Arial,sans-serif;line-height:21px;font-weight:400;font-style:normal;font-size:14px;text-decoration:none;text-transform:none;direction:ltr;color:#555555;text-align:center;mso-line-height-rule:exactly;mso-text-raise:2px;">Welcome to our <span class="t30" style="margin:0;Margin:0;mso-line-height-rule:exactly;">Family!</span></p></td></tr></table>
     </td></tr></table>
     </td></tr></table></td></tr></table>
     </td></tr></table>
