@@ -63,8 +63,8 @@ router.get('/user/:userId', async (req,res) => {
 
 router.get('/referral-benefits/:userId', async (req,res) => {
   try {
-    const user = await User.findOne({code: req.params.userId})
-
+    const user = await User.findById(req.params.userId)
+      
       if(!user){
         return res.status(404).json({message: 'No User Found.'})
       }
@@ -72,7 +72,7 @@ router.get('/referral-benefits/:userId', async (req,res) => {
       let benefits = []
 
       user.credits.forEach(credit => {
-        if(credit.purpose === 'Referral Bonus'){
+        if(credit.purpose.includes('Referral')){
           benefits.push(credit)
         }
       }
