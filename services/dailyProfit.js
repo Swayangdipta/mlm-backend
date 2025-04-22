@@ -13,7 +13,7 @@ async function distributeDailyProfit() {
           console.log(`❌ ${user.name || user._id} has no staking wallet balance.`);
           continue;
         }
-        const dailyProfit = user.staking_wallet * 0.04;
+        const dailyProfit = user.staking_wallet * (0.04 / 30.4);
 
         const updateData = {
           $inc: {

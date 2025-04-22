@@ -2,7 +2,7 @@ const User = require('../models/user');
 const Investment = require('../models/investment');
 const Bonus = require('../models/bonus');
 
-const DAILY_PERCENTAGE = 0.005; // 0.50% Daily Profit
+const DAILY_PERCENTAGE = 0.005 / 30.4; // 0.50% Daily Profit
 const MONTHLY_BONUS_REQUIREMENT = 5000; // Business volume required for monthly bonus
 
 // Daily Bonus Generation
