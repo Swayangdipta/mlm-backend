@@ -33,7 +33,7 @@ cron.schedule('0 0 * * *', async () => {
 });
 
 cron.schedule(
-  '44 23 * * *',
+  '10 0 * * *',
   async () => {
     await distributeLevelCommission();
   },
