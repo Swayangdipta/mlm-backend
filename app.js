@@ -17,6 +17,7 @@ const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
 const treeRoutes = require('./routes/treeRoutes');
 const commissionRoutes = require('./routes/commission');
+const distributeLevelCommission = require('./services/levelCommission');
 
 const app = express();
 app.use(express.json());
@@ -31,15 +32,27 @@ cron.schedule('0 0 * * *', async () => {
   await distributeDailyProfit();
 });
 
-// Run monthly on the 1st at midnight
-cron.schedule('0 0 1 * *', async () => {
-  await distributeMonthlyRewards();
-});
+cron.schedule(
+  '44 23 * * *',
+  async () => {
+    await distributeLevelCommission();
+  },
+  {
+    timezone: 'Asia/Kolkata'
+  }
+);
 
-// Run weekly on Sunday at midnight
-cron.schedule('0 0 * * 0', async () => {
-  await distributeLifetimeRewards();
-});
+
+
+// // Run monthly on the 1st at midnight
+// cron.schedule('0 0 1 * *', async () => {
+//   await distributeMonthlyRewards();
+// });
+
+// // Run weekly on Sunday at midnight
+// cron.schedule('0 0 * * 0', async () => {
+//   await distributeLifetimeRewards();
+// });
 
 // Define Routes
 app.use("/auth", authRoutes);

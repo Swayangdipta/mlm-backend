@@ -30,6 +30,7 @@ const UserSchema = new mongoose.Schema({
   referral_wallet: {type: Number, default: 0},
   isReferralBonusCreditedToSponsor: {type: Boolean, default: false},
   daily_rewards: {type: Number, default: 0},
+  team_rewards: {type: Number, default: 0},
   monthly_rewards: {type: Number, default: 0},
   lifetime_rewards: {type: Number, default: 0},
   wallet_address: {type: String, default: null},
