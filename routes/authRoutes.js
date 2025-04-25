@@ -33,6 +33,16 @@ router.post('/login', async (req, res) => {
           { expiresIn: "7d" } // Token expires in 7 days
       );
 
+      // Only return the sum of the withdrawal amounts
+      let withdrawal_amount = 0 
+
+      user.withdrawals.forEach((item) => {
+        withdrawal_amount += parseFloat(item.amount) 
+      })
+
+      console.log(withdrawal_amount);
+      
+
       res.json({
           message: "Login successful",
           token,
@@ -55,11 +65,11 @@ router.post('/login', async (req, res) => {
               redeem_wallet: user.redeem_wallet ? user.redeem_wallet : 0,
               referral_wallet: user.referral_wallet,
               wallet_address: user.wallet_address || null,
+              withdrawals: withdrawal_amount,
           }
       });
 
   } catch (error) {
-      console.error(error);
       res.status(500).json({ message: "Server error" });
   }
 });
@@ -138,7 +148,6 @@ router.post("/register", async (req, res) => {
     res.status(201).json({ message: "User registered successfully", user: newUser });
 
   } catch (error) {
-    console.error(error);
     res.status(500).json({ message: "Error registering user", error });
   }
 });
@@ -161,18 +170,14 @@ router.post('/forgot-password', async (req, res) => {
     const resetLink = `${process.env.FRONTEND_URL}/reset-password/${token}`;
 
     const isMailSent = await sendEmail({receiver: user.email, fullname: user.fullname, link: resetLink, type: 'forgot'});
-    console.log(resetLink);
     
     if(isMailSent){
-      console.log("Email sent successfully!");
       res.status(201).json({ message: "A link to reset your password have been sent to tour registered email address." });
     }
     else{
-      console.log("Error sending email!");
       res.status(500).json({ message: "Faild to create reset link, try again later!" });
     }
   }catch (error) {
-    console.error(error);
     res.status(500).json({ message: "Server error" });
   }
 }
@@ -200,7 +205,6 @@ router.put('/reset-password/:token', async (req, res) => {
 
     res.status(201).json({ message: "Password reset successfully" });
   } catch (error) {
-    console.error(error);
     res.status(500).json({ message: "Server error" });
   }
 });

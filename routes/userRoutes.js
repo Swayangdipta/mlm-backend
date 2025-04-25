@@ -37,11 +37,20 @@ router.get('/downline/:userId', async (req, res) => {
 
 router.get('/:userId', async (req,res) => {
   try {
-    const user = await User.findById(req.params.userId).populate('referrals')
-
+    let user = await User.findById(req.params.userId).populate('referrals')
+ 
     if(!user) res.status(404).json({message: 'No User Found.'})
 
-      return res.status(200).json(user)
+          
+    let withdrawal_amount = 0 
+
+    user.withdrawals.forEach((item) => {
+      withdrawal_amount += parseFloat(item.amount) 
+    })
+
+    user.withdrawalAmount = withdrawal_amount
+
+    return res.status(200).json(user)
   } catch (error) {
     res.status(500).json({ message: 'Error fetching user data', error });
   }
@@ -154,12 +163,14 @@ router.put('/transfer/:userId/:memberId', async (req, res) => {
     const { userId, memberId } = req.params;
     const { amount } = req.body;
 
+    console.log(amount);
+    
     if (!amount || isNaN(amount) || amount <= 0) {
       return res.status(400).json({ message: 'Invalid amount.' });
     }
 
     const user = await User.findById(userId);
-    const transferToUser = await User.findById(memberId);
+    const transferToUser = await User.findOne({code: memberId});
 
     if (!user) {
       return res.status(404).json({ message: 'No User Found.' });
@@ -177,7 +188,7 @@ router.put('/transfer/:userId/:memberId', async (req, res) => {
     const updateSender = {
       $inc: { redeem_wallet: -amount },
       $push: {
-        withdrawal: {
+        withdrawals: {
           purpose: 'Transfer',
           date: new Date().toLocaleDateString(),
           time: new Date().toLocaleTimeString(),
@@ -200,7 +211,7 @@ router.put('/transfer/:userId/:memberId', async (req, res) => {
     };
 
     await User.findByIdAndUpdate(userId, updateSender);
-    await User.findByIdAndUpdate(memberId, updateReceiver);
+    await User.findByIdAndUpdate(transferToUser._id, updateReceiver);
 
     return res.status(200).json({ message: 'Transfer successful.' });
   } catch (error) {
