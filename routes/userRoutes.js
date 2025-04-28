@@ -1,5 +1,6 @@
 const express = require('express');
 const User = require('../models/user');
+const Deposit = require('../models/deposit');
 const authMiddleware = require('../middlewares/authMiddleware');
 const _ = require('lodash');
 const withdrawal = require('../models/withdrawal');
@@ -219,6 +220,48 @@ router.put('/transfer/:userId/:memberId', async (req, res) => {
     return res.status(500).json({ message: 'Error processing transfer.', error });
   }
 });
+
+// Recursive function to calculate business
+const calculateBusiness = async (userId) => {
+  let total = 0;
+
+  // Find this user's deposits
+  const deposits = await Deposit.find({ user: userId });
+  deposits.forEach(deposit => {
+    total += deposit.amount;
+  });
+
+  // Find this user's referrals
+  const user = await User.findById(userId).populate('referrals');
+
+  if (user?.referrals?.length > 0) {
+    for (const referral of user.referrals) {
+      total += await calculateBusiness(referral._id); // recursively calculate referral's business
+    }
+  }
+
+  return total;
+};
+
+router.get('/team-business/:userId', async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const userExists = await User.findById(userId);
+    if (!userExists) {
+      return res.status(404).json({ message: 'No User Found.' });
+    }
+
+    const totalBusiness = await calculateBusiness(userId);
+
+    return res.status(200).json({ totalBusiness, topName: userExists.fullname || userExists.username, topCode: userExists.code });
+  } catch (error) {
+    console.error('Error fetching total business:', error);
+    return res.status(500).json({ message: 'Error fetching total business.', error });
+  }
+});
+
+module.exports = router;
 
   
 module.exports = router;
