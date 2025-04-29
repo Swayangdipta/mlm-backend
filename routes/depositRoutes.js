@@ -24,6 +24,15 @@ router.post('/create', upload.single('receipt'), async (req, res) => {
           async (error, result) => {
               if (error) return res.status(500).json({ message: 'Cloudinary upload failed', error });
               
+              // Check if user's current wallet balance / 400 is 100 less than the deposit amount
+              const user = await User.findById(req.body.user);
+
+              if (!user) return res.status(404).json({ message: 'User not found' });
+
+              if (amount >= (user.current_wallet / 400) + 100) {
+                  return res.status(400).json({ message: 'Deposit amount need to be at least $100 more than previous deposit amount.' });
+              }
+
               // Create Deposit
               const deposit = await Deposit.create({
                   user: req.body.user,
