@@ -226,7 +226,7 @@ const calculateBusiness = async (userId) => {
   let total = 0;
 
   // Find this user's deposits
-  const deposits = await Deposit.find({ user: userId });
+  const deposits = await Deposit.find({ user: userId, status: 'approved' });
   deposits.forEach(deposit => {
     total += deposit.amount;
   });
