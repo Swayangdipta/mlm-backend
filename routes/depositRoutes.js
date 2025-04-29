@@ -30,7 +30,7 @@ router.post('/create', upload.single('receipt'), async (req, res) => {
               if (!user) return res.status(404).json({ message: 'User not found' });
 
               if (amount < (user.current_wallet / 400) + 100) {
-                  return res.status(400).json({ message: 'Deposit amount need to be at least $100 more than previous deposit amount.' });
+                  return res.status(402).json({ message: 'Deposit amount need to be at least $100 more than previous deposit amount.' });
               }
 
               // Create Deposit
