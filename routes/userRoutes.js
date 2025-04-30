@@ -12,9 +12,7 @@ router.get('/downline/:userId', async (req, res) => {
       async function getDownline(userId) {
         let downline = [];
         
-        const users = await User.find({ sponsor: userId }).populate('sponsor', 'code').select('fullname username _id code rank sponsor totalBusiness createdAt');
-        
-        console.log(users);
+        const users = await User.find({ sponsor: userId }).populate('sponsor', 'code').select('fullname username _id code rank sponsor totalBusiness createdAt wallet_balance status');
         
         for (let user of users) {
           downline.push(user); // Add user to the flat list
@@ -24,8 +22,6 @@ router.get('/downline/:userId', async (req, res) => {
   
         return downline;
       }
-      
-      console.log(req.params.userId);
       
       const downline = await getDownline(req.params.userId);
       res.json(downline);
@@ -194,6 +190,8 @@ router.put('/transfer/:userId/:memberId', async (req, res) => {
           date: new Date().toLocaleDateString(),
           time: new Date().toLocaleTimeString(),
           amount: amount,
+          toUserCode: transferToUser.code,
+          toUserName: transferToUser.fullname || transferToUser.username,
         },
       },
     };

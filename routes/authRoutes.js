@@ -66,6 +66,7 @@ router.post('/login', async (req, res) => {
               referral_wallet: user.referral_wallet,
               wallet_address: user.wallet_address || null,
               withdrawals: withdrawal_amount,
+              status: user.status,
           }
       });
 
