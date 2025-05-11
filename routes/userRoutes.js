@@ -155,12 +155,63 @@ router.put('/user/:userId', async (req,res) => {
   }
 })
 
+router.put('/activate/pack/:userId', async (req,res) => {
+
+  try {
+    const { userId } = req.params;
+    const { amount } = req.body;
+
+    console.log("UserId", amount);
+    
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: 'No User Found.' });
+    }
+
+    if(amount <= 0 || isNaN(amount)) {
+      return res.status(400).json({ message: 'Invalid amount.' });
+    }
+
+    if(amount > user.redeem_wallet / 400) {
+      return res.status(400).json({ message: 'Insufficient balance in redeem wallet.' });
+    }
+
+    if(amount < (user.current_wallet / 400) + 100) {
+      return res.status(400).json({ message: 'Activating new pack requires $100 more than previous pack' });
+    }
+
+        await User.findByIdAndUpdate(user._id, {
+          $set: {current_wallet: parseInt(amount) * 400, pending_deposits: [], activationDate:  new Date(), status: 'active'}, // Set the current wallet to the deposit amount
+          $inc: { wallet_balance: amount, staking_wallet: parseInt(amount) * 400, token_wallet: parseInt(amount) * 400, redeem_wallet: -parseInt(amount) * 400 }, // Deposit added to wallet balance
+          $push: {
+            credits: {
+              purpose: 'Pack Activation',
+              date: new Date().toLocaleDateString(),
+              time: new Date().toLocaleTimeString(),
+              amount: amount * 400,
+            },
+            withdrawals: {
+              purpose: 'Pack Activation',
+              date: new Date().toLocaleDateString(),
+              time: new Date().toLocaleTimeString(),
+              amount: amount * 400,
+            },
+          }
+        });
+
+    return res.status(200).json({ message: 'Pack activated successfully.' });
+  } catch (error) {
+    console.error('Error activating user:', error);
+    return res.status(500).json({ message: 'Error activating user.', error });
+  }
+})
+
 router.put('/transfer/:userId/:memberId', async (req, res) => {
   try {
     const { userId, memberId } = req.params;
     const { amount } = req.body;
-
-    console.log(amount);
     
     if (!amount || isNaN(amount) || amount <= 0) {
       return res.status(400).json({ message: 'Invalid amount.' });
@@ -198,7 +249,7 @@ router.put('/transfer/:userId/:memberId', async (req, res) => {
 
     // Prepare update data for receiver
     const updateReceiver = {
-      $inc: { token_wallet: amount },
+      $inc: { redeem_wallet: amount },
       $push: {
         credits: {
           purpose: 'Transfer',
