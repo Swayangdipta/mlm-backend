@@ -37,6 +37,7 @@ const UserSchema = new mongoose.Schema({
   pending_deposits: [],
   forgot_token: String,
   forgot_token_expiry: Date,
+  isPackActivatedOnce: { type: Boolean, default: false }, // To track if pack is activated once
 });
 
 module.exports = mongoose.model('User', UserSchema);

@@ -161,9 +161,6 @@ router.put('/activate/pack/:userId', async (req,res) => {
     const { userId } = req.params;
     const { amount } = req.body;
 
-    console.log("UserId", amount);
-    
-
     const user = await User.findById(userId);
 
     if (!user) {
@@ -183,7 +180,7 @@ router.put('/activate/pack/:userId', async (req,res) => {
     }
 
         await User.findByIdAndUpdate(user._id, {
-          $set: {current_wallet: parseInt(amount) * 400, pending_deposits: [], activationDate:  new Date(), status: 'active'}, // Set the current wallet to the deposit amount
+          $set: {isPackActivatedOnce: true, current_wallet: parseInt(amount) * 400, pending_deposits: [], activationDate:  new Date(), status: 'active'}, // Set the current wallet to the deposit amount
           $inc: { wallet_balance: amount, staking_wallet: parseInt(amount) * 400, token_wallet: parseInt(amount) * 400, redeem_wallet: -parseInt(amount) * 400 }, // Deposit added to wallet balance
           $push: {
             credits: {

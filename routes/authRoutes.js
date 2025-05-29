@@ -67,6 +67,7 @@ router.post('/login', async (req, res) => {
               wallet_address: user.wallet_address || null,
               withdrawals: withdrawal_amount,
               status: user.status,
+              isPackActivatedOnce: user.isPackActivatedOnce,
           }
       });
 
